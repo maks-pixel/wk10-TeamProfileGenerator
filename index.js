@@ -4,16 +4,19 @@ const Engineer = require ('./lib/Engineer');
 const Intern = require ('./lib/Intern');
 const fs = require ('fs');
 const path = require ('path');
+const renderTeam = require('./src/template.js')
+const OUTPUTDIR = path.resolve(__dirname, 'output');
+const outpath = path.join(OUTPUTDIR, 'index.html')
 const team = []
 
  
-
+//prompting the manager questions first
 const promptManager = () => {
     return inquirer.prompt([
         {
             type: 'text',
             name: 'name',
-            message: 'What is the Employees name?'
+            message: 'What is the Manager name?'
         },
         {
             type: 'text',
@@ -23,13 +26,13 @@ const promptManager = () => {
         {
             type: 'text',
             name: 'email',
-            message: 'What is the Employees email?'
+            message: 'What is the Manager email?'
         },
         {
             type: 'text',
             name: 'officeNumber',
             message: 'What is the office number?'
-        }
+        } //pushing the answers to team and the manager tag
     ]).then( answers => {
         console.log(answers);
         const manager = new Manager(answers.name, answers.id, answers.email, answers.officeNumber);
@@ -38,6 +41,7 @@ const promptManager = () => {
     })
 };
 
+//creating the choice to add a new employee
 const promptChoice = () => {
     return inquirer.prompt(
     {
@@ -61,12 +65,14 @@ const promptChoice = () => {
          case "Nah I'm done":
           //build the team function that executes the html
           console.log(team);
-             buildteam(); 
+         
+          buildTeam(team); 
      };
 
     });
 };
 
+//the Engineering question prompts
 const promptEngineer = () => {
     console.log(`
     =================
@@ -102,6 +108,7 @@ const promptEngineer = () => {
     });
 };
 
+// prompting the intern questions when adding an intern employee
 const promptIntern = () => {
     console.log(`
     ===============
@@ -137,4 +144,17 @@ const promptIntern = () => {
     });
 };
 
-promptManager()
+//writing a file using the data presented and putting it in a new directory
+function writeToFile(data){
+    if(!fs.existsSync(OUTPUTDIR)){
+        fs.mkdirSync(OUTPUTDIR)
+    }
+    return fs.writeFileSync(outpath, data)
+}
+
+//generating the HTML file using the renderTeam template and data in the team object
+function buildTeam(team){
+   writeToFile(renderTeam(team))
+}
+
+promptManager();
